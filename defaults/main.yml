@@ -19,6 +19,9 @@ kerberos_skip_defaults: false
 #
 kerberos_os_supported: no
 
+kerberos_enabled_in_sshd_config: yes
+gssapi_enabled_in_sshd_config: yes
+
 kerberos: {}
 kerberos_packages: []
 

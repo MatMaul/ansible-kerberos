@@ -23,7 +23,7 @@
     - kerberos
   package:
     name: "{{ item }}"
-    state: installed
+    state: present
   with_items:
     - "{{ kerberos_packages }}"
 
@@ -36,6 +36,28 @@
     owner: root
     group: root
     mode: 0644
+
+- name: KERBEROS | Enable GSSAPI in sshd config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*GSSAPIAuthentication.*$'
+    line: GSSAPIAuthentication yes
+  when: gssapi_enabled_in_sshd_config
+  register: gss_sshd
+
+- name: KERBEROS | Enable Kerberos in sshd config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*KerberosAuthentication .*$'
+    line: KerberosAuthentication yes
+  when: kerberos_enabled_in_sshd_config
+  register: krb_sshd
+
+- name: KERBEROS | Restart sshd
+  service:
+    name: sshd
+    state: restarted
+  when: gss_sshd.changed or krb_sshd.changed
 
 - name: KERBEROS | Register that the kerberos role has run
   tags:
